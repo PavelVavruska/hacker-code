@@ -7,12 +7,10 @@ pub fn get_number_of_pairs(_number: i8, color_array: &[i8]) -> i8 {
     }
     let mut count = 0;
     for (&_key, &val) in hashmap.iter() {
-        if val == 0 {
+        if val < 2 {
             continue;
         }
-        if val % 2 >= 0 {
-            count += val / 2;
-        }
+        count += val / 2;
     }
     return count;
 }
