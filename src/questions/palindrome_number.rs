@@ -1,10 +1,49 @@
 struct Solution;
 
 impl Solution {
-    /// Using only number structs
+    /// Using only number structs, i32 only
+    /// Runtime: 12 ms
+    /// Memory Usage: 2.2 MB
+    pub fn is_palindrome(x: i32) -> bool {
+        if x < 0 {
+            return false;
+        }
+        let mut devider: i32 = 10;
+        let mut vec_numbers: Vec<i32> = Vec::new();
+        loop {
+            let value_on_index = x % devider / (devider / 10);
+
+            if x / devider > 0 {
+                vec_numbers.push(value_on_index);
+                if devider < i32::MAX / 10 {
+                    devider *= 10;
+                } else {
+                    // handle devider larger than i32::MAX
+                    // move the first number down by factor of 10
+                    let mut_x = x / 10;
+                    vec_numbers.push(mut_x % devider / (devider / 10));
+                    break;
+                }
+            } else {
+                vec_numbers.push(value_on_index);
+                break;
+            }
+        }
+
+        for i in 0..(vec_numbers.len() / 2) {
+            let left_side = vec_numbers[i];
+            let right_side = vec_numbers[vec_numbers.len() - i - 1];
+            if left_side != right_side {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Using only number structs, i64
     /// Runtime: 12 ms
     /// Memory Usage: 2 MB
-    pub fn is_palindrome(x: i32) -> bool {
+    pub fn is_palindrome_i64_hack(x: i32) -> bool {
         if x < 0 {
             return false;
         }
@@ -68,5 +107,11 @@ mod tests {
     fn test_example_3() {
         let input = 1234567899;
         assert_eq!(false, Solution::is_palindrome(input));
+    }
+
+    #[test]
+    fn test_example_4() {
+        let input = 1000000001;
+        assert_eq!(true, Solution::is_palindrome(input));
     }
 }
