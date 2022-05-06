@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+/// Get number of color pairs (number value=color) in int array.
 pub fn get_number_of_pairs(_number: i8, color_array: &[i8]) -> i8 {
     let mut hashmap = HashMap::new();
     for color in color_array {
