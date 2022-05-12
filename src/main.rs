@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::io::{stdin, Read};
 
 mod questions;
+mod rust_book;
 
 fn parse_vec_int_from_str(first_line: Option<&str>) -> Vec<u32> {
     return first_line
