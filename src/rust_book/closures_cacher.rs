@@ -51,24 +51,25 @@ impl<T: Fn(U) -> U, U: Copy> Cacher<T, U> {
     }
 }
 
-
-struct CacherHash<T: Fn(U) -> U, U: Copy+Eq+Hash> {
+/// Computation closure with support of different types as input/output, 
+/// e.g. input a string slice and return usize values
+struct CacherHash<T: Fn(K) -> V, K: Eq+Hash, V: Copy+Eq+Hash > {
     computation: T,
-    map: HashMap<U, U>,
+    map: HashMap<K, V>,
 }
 
-impl<T: Fn(U) -> U, U: Copy+Eq+Hash> CacherHash<T, U> {
-    pub fn new(computation: T) -> CacherHash<T, U> {
+impl<T: Fn(K) -> V, K: Clone+Eq+Hash, V: Copy+Eq+Hash> CacherHash<T, K, V> {
+    pub fn new(computation: T) -> CacherHash<T, K, V> {
         CacherHash {
             computation,
             map: HashMap::new(),
         }
     }
 
-    pub fn value(&mut self, input_value: U) -> U {
+    pub fn value(&mut self, input_value: K) -> V {
         match self.map.get(&input_value) {
             None => {
-                let v = (self.computation)(input_value);
+                let v = (self.computation)(input_value.clone());
                 self.map.insert(input_value, v);
                 return v;
             },
@@ -76,7 +77,6 @@ impl<T: Fn(U) -> U, U: Copy+Eq+Hash> CacherHash<T, U> {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -166,6 +166,35 @@ mod tests {
         for i in 1..10 {
             let start = Instant::now();
             println!("{} Cacher value 2 {}", i, cacher.value(10));
+            let duration1 = start.elapsed();
+            println!("{} Time elapsed in expensive_function() is: {:?}", i, duration1);
+        }
+    
+    }
+
+    #[test]
+    fn test_generic_hashmap_usize_string_slice() {
+        let closure = |x: &str| {
+            for i in 1..1000 {
+                print!("."); // simulate slow computation
+            }
+            
+            x.len()
+        };
+        let mut cacher = CacherHash::new(closure);
+
+        for i in 1..10 {
+            let start = Instant::now();
+            println!("{} Cacher value 1 {}", i, cacher.value("12345"));
+            let duration1 = start.elapsed();
+            println!("{} Time elapsed in expensive_function() is: {:?}", i, duration1);
+        }
+
+        println!();  
+
+        for i in 1..10 {
+            let start = Instant::now();
+            println!("{} Cacher value 2 {}", i, cacher.value("1234567890"));
             let duration1 = start.elapsed();
             println!("{} Time elapsed in expensive_function() is: {:?}", i, duration1);
         }
