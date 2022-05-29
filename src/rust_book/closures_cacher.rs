@@ -1,11 +1,11 @@
-struct Cacher<T: Fn(u32) -> u32> {
+struct Cacher_u32<T: Fn(u32) -> u32> {
     computation: T,
     value: Option<u32>,
 }
 
-impl<T: Fn(u32) -> u32> Cacher<T> {
-    pub fn new(computation: T) -> Cacher<T> {
-        Cacher {
+impl<T: Fn(u32) -> u32> Cacher_u32<T> {
+    pub fn new(computation: T) -> Cacher_u32<T> {
+        Cacher_u32 {
             computation,
             value: None,
         }
@@ -23,15 +23,84 @@ impl<T: Fn(u32) -> u32> Cacher<T> {
     }
 }
 
+struct Cacher<T: Fn(U) -> U, U: Copy> {
+    computation: T,
+    value: Option<U>,
+}
+
+impl<T: Fn(U) -> U, U: Copy> Cacher<T, U> {
+    pub fn new(computation: T) -> Cacher<T, U> {
+        Cacher {
+            computation,
+            value: None,
+        }
+    }
+
+    pub fn value(&mut self, input_value: U) -> U {
+        match self.value {
+            None => {
+                let v = (self.computation)(input_value);
+                self.value = Some(v);
+                return v;
+            },
+            Some(v) => v,
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
-    use super::Cacher;
+    use super::{Cacher_u32, Cacher};
     use std::time::Instant;
 
     #[test]
-    fn test_main() {
+    fn test_u32() {
         let closure = |x| (x + 1)*(x + 2)/x;
+        let mut cacher = Cacher_u32::new(closure);
+
+        let start = Instant::now();
+        println!("Cacher value 1 {}", cacher.value(1));
+        let duration1 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration1);
+
+        let start = Instant::now();
+        println!("Cacher value 2 {}", cacher.value(2));
+        let duration2 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration2);
+        
+        let start = Instant::now();
+        println!("Cacher value 3 {}", cacher.value(3));
+        let duration3 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration3);
+    
+    }
+
+    #[test]
+    fn test_generic_i32() {
+        let closure = |x| (x + 1)*(x + 2)/x;
+        let mut cacher = Cacher::new(closure);
+
+        let start = Instant::now();
+        println!("Cacher value 1 {}", cacher.value(1));
+        let duration1 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration1);
+
+        let start = Instant::now();
+        println!("Cacher value 2 {}", cacher.value(2));
+        let duration2 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration2);
+        
+        let start = Instant::now();
+        println!("Cacher value 3 {}", cacher.value(3));
+        let duration3 = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration3);
+    
+    }
+
+    #[test]
+    fn test_generic_usize() {
+        let closure = |x| ((x + 1)*(x + 2)/x) as usize;
         let mut cacher = Cacher::new(closure);
 
         let start = Instant::now();
