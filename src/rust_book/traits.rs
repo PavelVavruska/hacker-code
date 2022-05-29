@@ -28,6 +28,13 @@ mod tests {
 
     #[test]
     fn test_main() {
+        let string_list = vec![
+            String::from("Bhoj"),
+            String::from("Ahoj"),
+            String::from("Ahoj2"),
+        ];
+        let result = largest(&string_list);
+        println!("The largest string is {}", result);
         let number_list = vec![34, 50, 25, 100, 65];
 
         let result = largest(&number_list);
